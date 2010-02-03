@@ -1,148 +1,190 @@
 
-var validationDataTypesArray=new Array();
-validationDataTypesArray["prevAbroad"]={"function":prevAbroad,"message":"All four fields in this row are required"};
-validationDataTypesArray["prevAbroadYear"]={"function":fourDigitYear,"message":"All four fields in this row are required"};
-validationDataTypesArray["selectProgram"]={"function":prevAbroad,"message":"Select a program below"};
 
 
-function prevAbroad(formElement){
-	var tagname=formElement.tagName;
-		var $element=$(formElement);
 
-		if($element.is(":checkbox")){
-			if($element.is(":checked"))return true;;
-		}
-		
-		else if($element.is(":radio")){
-			if($('input[name='+$element.attr('name')+']:checked').length>0) return true;
-		}
-		else{
-			
-			var pattern=/\S+/i;
-			return pattern.test($element.val());
-		}
-		return false;
-}
-function fourDigitYear(field){
-	//either empty or a valid four digit year.
-		var val=$(field).val();
-		if(val==""||(parseFloat(val)>1900&&parseFloat(val)<2100)) return true;
-		else return false;
+var labelClass='requiredText'; //Class added to the "required" marker in the label
+var messageClass='requiredText'; //Class added to the "please enter" error message next to the form element
+
+var failedLabelClass="requiredTextBold";
+var failedMessageClass="requiredTextBold";
+
+
+var customLabelClassStarter="customLabel_";
+var customMessageClassStarter="customMessage_";
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Helper function to get a label associated with a form element
+function getLabelObj(formElement){
+	
+	var $label=$("label[for='"+$(formElement).attr('id')+"']");
+	
+	
+	
+	if($(formElement).attr('type')=="radio"||$label.length==0){
+		// This is a radio button - just assume the first table cell in this row is the label
+		$label=$(formElement).parents('tr:first').children('td:first');
+	}
+	
+	
+	//Check to see if there is a custom label
+	var customLabel=extractFromClassNameHelper($(formElement).attr('class'), customLabelClassStarter);
+	if(customLabel!=""&&customLabel!=undefined) $label=$('#'+customLabel);
+	
+	
+	
+	return $label;
 	
 }
-
-
-var labelClass='requiredText';
-var messageClass='requiredText';
-
-
-var validationDataTypesArray=new Array();
-
-
-
-
-function fieldValidationFail(formElement,message,dataType,result){
-	//Function called when a field fails validation
-	//If this is a text input or a text area - make the background yellow
-	// Add message to last td
-
-	var $messageTD=$(formElement).parent().next();
-	if ($(formElement).attr('customMessage')){
-		var messageID=$(formElement).attr('customMessage');
-		$messageTD=$('#'+messageID);
-	}
-	$messageTD.html("<span class='"+messageClass+"'>* "+message+" *");
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Helper function to get a label associated with a form element
+function getMessageObj(formElement){
+	
+	var $message=$(formElement).parents('td:first').next();
+	
+	
+	var customMessage=extractFromClassNameHelper($(formElement).attr('class'), customMessageClassStarter);
+	if(customMessage!=""&&customMessage!=undefined) $message=$('#'+customMessage);
+	
+	
+	
+	return $message;
 	
 }
 
-function fieldValidationPass(formElement,message,dataType,result){
-	//Function called when a field passes validation
-	// Remove yellow background
-	// Remove message in last td
-	var $messageTD=$(formElement).parent().next();
-	if ($(formElement).attr('customMessage')){
-		var messageID=$(formElement).attr('customMessage');
-		$messageTD=$('#'+messageID);
-	}
-	else if($(formElement).attr('customLabel')){
-		var messageID=$(formElement).attr('customLabel')+"Message";
-		$messageTD=$('#'+messageID);
-	}
-
-	////////////////////// THIS IS A HACK TO GET THE REQUIRED PREVIOUS STUDY ABROAD EXPERIENCES FIELDS TO WORK //////////////////
-	var othersInRowEmpty=false;
-	if($(formElement).parents('table').eq(0).attr('id')=='hasTraveledTable'){
-		$(formElement).parents('tr').eq(0).find('*:input').each(function(){
-			if($(this).val()=="")othersInRowEmpty=true;																 
-																		 
-		});
-		
-	}
-	if(othersInRowEmpty)return;
-	
-	
-	
-	
-	
-	$messageTD.html("");
-	
-}
-
-function formValidationFail(formPointer,failedFieldArray){
-	
-	//Function called when a form fails validation  onsubmit
-	// alert box with messages
-
-	var message="The form is not complete, please fill out all required fields before submitting:"
-	for(element in failedFieldArray){
-	
-		// get field label
-		var labelText=$(failedFieldArray[element]["element"]).parent().prev().text();
-		
-		if( $(failedFieldArray[element]["element"]).attr('customLabel')){
-			var customLabelID=$(failedFieldArray[element]["element"]).attr('customLabel');
-			labelText=$('#'+customLabelID).text();
-		}
-		
-		
-		message+="\n\n     "+labelText+"  "+failedFieldArray[element]["message"];
-
-	}
-	alert(message);
-}
-
-function formValidationPass(formPointer){
-	//Function called when a form passes validation just before the form is submitted
-
-	
-	if($('#enterProgramContainer:visible').length>0){
-		// The user has entered their program information
-		alert("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean eget felis vel dolor luctus aliquet. Nunc feugiat egestas quam. Sed turpis metus, commodo id, dictum vel, dapibus sit amet, est. Praesent euismod magna id nisi. Mauris et mi.");
-		
-	}
-	
-}
-
-
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function formValidationRequiredElementInit(formElement){
 	//Function called when a page loads or a new required element is added to the form
 	// Add "*" before field label
 	
-	
-	var $labelTD=$(formElement).parent().prev();
-	if($(formElement).attr('customLabel')){
-		var labelID=$(formElement).attr('customLabel');
-		$labelTD=$('#'+labelID);
-	}
-	
-	else if($labelTD.find('label').length>0)$labelTD=$labelTD.find('label').eq(0);
-	
-	
-	
-	if(!$labelTD.find(":first-child").hasClass(labelClass))$labelTD.prepend("<span class='"+labelClass+"'>* </span>");
+
+	//Find the label 
+	var $label=getLabelObj(formElement);
+	//Add a "*"
+	if(!$label.find('span').hasClass(labelClass)) $label.prepend("<span class='"+labelClass+"'>* </span>");
+									  
+									 
 	
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+function fieldValidationFail(formElement,message,dataType,result){
+	//Function called when a field fails validation
+	// Add message to next td
+
+	var $message=getMessageObj(formElement);
+	
+	//need to determine if this already exists - if not add it
+	if($message.find('span.'+messageClass).length==0){
+		$message.html("<span class='"+messageClass+"' style='display:none'>* "+message+" *");
+		$message.find('span.'+messageClass).fadeIn('slow');
+	}
+	
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function fieldValidationPass(formElement,message,dataType,result){
+	//Function called when a field passes validation
+	// Remove message in next td
+	
+	var $message=getMessageObj(formElement);
+	$message.find('span.'+messageClass).fadeOut('slow',function(){$message.html("");});
+	getLabelObj(formElement).removeClass(failedLabelClass);
+	
+	
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function formValidationFail(formPointer,failedFieldArray){
+	
+	//Function called when a form fails validation  onsubmit
+	
+	
+	//Let's add the "misse
+	
+	
+		for(element in failedFieldArray){
+		
+			getLabelObj($(failedFieldArray[element]["element"])).addClass(failedLabelClass);
+			getMessageObj($(failedFieldArray[element]["element"])).find('span.'+messageClass).addClass(failedMessageClass);
+	
+		}
+	
+	
+	
+	
+	
+	
+	//There is a div on the page where the errors  should go.	
+	if($('#formValidationErrors').length==1){
+		
+		$('#formValidationErrors').html("").css('display','none');
+		if($('#formValidationErrorsAnchor').length==0){$('#formValidationErrors').append('<a name="formValidationErrorsAnchor" id="formValidationErrorsAnchor"></a>');}
+		
+		var message="<p><strong>The form is not complete, please fill out all required fields before submitting:</strong></p>";
+		message +="<ul>";
+		
+		for(element in failedFieldArray){
+		
+			var $label=getLabelObj($(failedFieldArray[element]["element"]));	
+			message+="<li>"+$label.text()+" - "+failedFieldArray[element]["message"]+"</li>";
+	
+		}
+		
+		message+="</ul>";
+		
+		$('#formValidationErrors').append(message);
+		
+		$('#formValidationErrors').fadeIn('slow');
+		
+		return;
+	}
+	
+	
+	
+	//There wasn't a div for errors to go - put errors in a javascript alert window
+
+	var message="The form is not complete, please fill out all required fields before submitting:"
+	for(element in failedFieldArray){
+		
+		var $label=getLabelObj($(failedFieldArray[element]["element"]));	
+		message+="\n\n     "+$label.text()+"  "+failedFieldArray[element]["message"];
+
+	}
+	alert(message);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+function formValidationPass(formPointer){
+	//Function called when a form passes validation just before the form is submitted
+
+
+	
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// This little helper function checks to see if the submitted classes start with the given classStarter. 
+	function extractFromClassNameHelper(classNames, classStarter){
+			var classes = classNames.split(' '); // Spit classNamge into separate classes - so each can be evaluated
+			
+			for(var i in classes){
+				if(classes[i].match(classStarter)) return classes[i].replace(classStarter,''); // There is a match
+			}
+			return ''; //There wasn't a match
+		};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////

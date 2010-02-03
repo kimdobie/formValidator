@@ -6,19 +6,19 @@
 /////////////////////////////////// INFO ////////////////////////////////////////////////////
 //This library was created by Kim Doberstein
 //
-// Version 1.2 - added the ability to ignor hidden elements
-// Date: 10/30/2008
+// Version 1.2.1beta 
+// Date: 02/02/2010
 //
 // Basic framework for form and form field validation
 
-// NOTE: This library requries the jQuery framework.  It was tested using version 1.2.6
+// NOTE: This library requries the jQuery framework.  It was tested using version 1.4.1
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////// SETTING UP YOUR HTML //////////////////////////////////////
 // 
 // Any form element that is "required" or should be tested needs to have a  class of "required"
 //
-//  <input name="text1" type="text" class="true"  />
+//  <input name="text1" type="text" class="required"  />
 //
 // Note: each radio button in a radio-button group will need have the "required" class
 
@@ -26,17 +26,17 @@
 // Something is entered in a textbox/textarea, a item is selected in a select box, checkbox is checked, and
 // at least one radio button in a radio group is selected.
 
-// If you want another kind of validation, you need to add a "dataType" attribute. Build-in reconginzied
+// If you want another kind of validation, you need to add a "dataType" class. Build-in reconginzied
 // datatypes and directions on how to add your own dataTypes are listed below.
 //
-//  <input name="text1" type="text" required="true" datatype="umIDNum" />
+//  <input name="text1" type="text" class="required dataType_email" />
 
 //  By default on a given event ("click","blur","change"), the form element will be validated. 
 //  The default event listeners or a given form element type are set at the top of the object.
 //  If you want a particular element to be validated on a different  event, you can add the wanted
 //  event in a validateEvent  attribute:
 
-//<input name="text1" type="text" required="true" datatype="umIDNum"  validateEvent="change" />
+//<input name="text1" type="text" class="required dataType_email"  validateEvent="change" />
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -64,8 +64,10 @@
 // "numerical" - Checks to see if data entered only contains numbers.  If the "numlength" attribute is set, will make sure the length is equal to the "numlength" attribute.
 // "email" - Checks to see if data entered is in the format of an email address.
 // "currency" - Checks to see if the user entered a dollar ammount - note a "$" before the number is optional as are commas.
-//"gpa"- Checks to see if a user entered a vale between 0.00 and 4.00".
+// "gpa"- Checks to see if a user entered a vale between 0.00 and 4.00".
 //'fourDigitYear'- Checks to see if a user entered nothing or a valid four digit year
+
+//*** Note: the above must start with "dataType_" when added as a class.  See "SETTING UP YOUR HTML" section.
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////

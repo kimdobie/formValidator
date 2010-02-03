@@ -18,7 +18,7 @@ function mustBeKimFunct(field){
 	else return false;
 }
 
-//Functions entered in teh validationDataTypesArray will be picked up by the formValidation object
+//Functions entered in the validationDataTypesArray will be picked up by the formValidation object
 var validationDataTypesArray=new Array();
 validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This field must be set to 'Kim'"};
 
@@ -26,6 +26,9 @@ validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This
 </head>
 
 <body>
+
+<div id="formValidationErrors"></div>
+
 <form method="post" action="#" id="myForm">
 	<table>
 		<tr>
