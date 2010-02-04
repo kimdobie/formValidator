@@ -62,7 +62,7 @@ function formValidationRequiredElementInit(formElement){
 	//Find the label 
 	var $label=getLabelObj(formElement);
 	//Add a "*"
-	if(!$label.find('span').hasClass(labelClass)) $label.prepend("<span class='"+labelClass+"'>* </span>");
+	if($label.find('span.'+labelClass).length==0) $label.prepend("<span class='"+labelClass+"'>* </span>");
 									  
 									 
 	

@@ -289,6 +289,8 @@ function FormValidation(formPointer,validateOnLoad){
 		validationTypes['currency']={"function":currency,"message":"Please enter a dollar amount"};
 		validationTypes["gpa"]={"function":checkGPA,"message":"The gpa must between 0.00 and 4.00"};
 		validationTypes['fourDigitYear']={"function":fourDigitYear,"message":"Please enter a valid 4 digit year"};
+		validationTypes['minLength']={"function":minLength,"message":"Your response is not long enough"};
+		validationTypes['maxLength']={"function":maxLength,"message":"Your response is too long"};
 	};
 	
 	
@@ -472,8 +474,55 @@ function FormValidation(formPointer,validateOnLoad){
 	
 	
 	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	* Validates a required field that has the "dataType" attribute set to 'fourDigitYear'.
+	* In order to pass, the field value must be larger than 1900 and less than 2100.
+	* @member FormValidation
+	* @author Kim Doberstein
+	* @private
+	* @return
+	*/
+	fourDigitYear=function(field){
+		//either empty or a valid four digit year.
+		var val=$(field).val();
+		if((parseFloat(val)>1900&&parseFloat(val)<2100)) return true;
+		else return false;
+		
+	}
 	
 	
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	* Validates a required field that has a min length.  The class for this is dataType_minLength_number, where number is the minimum length;
+	* @member FormValidation
+	* @author Kim Doberstein
+	* @private
+	* @return
+	*/
+	minLength=function(field){
+		var length=parseInt(extractDataFromClassName($(field).attr('class'), dataTypeClassStarter+"minLength_"));
+		if($(field).val().length>=length) return true;
+		return false
+	
+	}
+	
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	* Validates a required field that has a max length.  The class for this is dataType_maxLength_number, where number is the maximum length;
+	* @member FormValidation
+	* @author Kim Doberstein
+	* @private
+	* @return
+	*/
+	maxLength=function(field){
+		var length=parseInt(extractDataFromClassName($(field).attr('class'), dataTypeClassStarter+"maxLength_"));
+		if($(field).val().length<=length) return true;
+		return false
+	
+	}
 	
 	
 	
@@ -615,26 +664,24 @@ function FormValidation(formPointer,validateOnLoad){
 			//var dataType=defaultDataType; //Generic
 			
 			
-			var dataTypes=extractDataFromClassName($(formElement).attr('class'),dataTypeClassStarter);
+			var dataTypes=extractDataFromClassName($(formElement).attr('class'),dataTypeClassStarter,true);
 		
 			
 			if(dataTypes==""||dataTypes==undefined)dataTypes[0]=defaultDataType; 
 				
 	
 			var result=true;
-	
 			var message= new Array();
 			
-			
 			for(var i=0;i<dataTypes.length;i++){
-				
+			
 				if(validationTypes[dataTypes[i]]){
 					var thisDataTypeResult=validationTypes[dataTypes[i]]["function"](formElement);
 					if(result)result=thisDataTypeResult;
 					if(!thisDataTypeResult)message.push(validationTypes[dataTypes[i]]["message"]);
 				}
 				
-				else debugStatement("Unknown dataType in checkValidation method: "+dataType);
+				else debugStatement("Unknown dataType in checkValidation method: "+dataTypes[i]);
 				
 				
 			}
@@ -796,12 +843,20 @@ function FormValidation(formPointer,validateOnLoad){
 	* @returns Th e rest of the class name starting with class header or "" if there wasn't a match.
 	*/
 	
-	extractDataFromClassName=function(classNames, classStarter){
+	extractDataFromClassName=function(classNames, classStarter, ignoreAfterUnderScore){
 			var classes = classNames.split(' '); // Spit classNamge into separate classes - so each can be evaluated
 			var returnArray=new Array();
 			
 			for(var i in classes){
-				if(classes[i].match(classStarter)) returnArray.push(classes[i].replace(classStarter,'')); // There is a match
+				if(classes[i].match(classStarter)){
+					var matchData=classes[i].replace(classStarter,'');
+					if(ignoreAfterUnderScore){
+						var regExp=/^[^_]+/i;
+						matchData=regExp.exec(matchData);
+						
+					}
+					returnArray.push(matchData); // There is a match
+				}
 				
 			}
 	
