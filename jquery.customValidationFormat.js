@@ -147,14 +147,18 @@ function formValidationFail(formPointer,failedFieldArray){
 		for(element in failedFieldArray){
 		
 			var $label=getLabelObj($(failedFieldArray[element]["element"]));	
-			message+="<li>"+$label.text()+" - "+failedFieldArray[element]["message"]+"</li>";
+			
+			for(var i=0; i< failedFieldArray[element]['messages'].length; i++){
+				message+="<li>"+$label.text()+" - "+failedFieldArray[element]['messages'][i]+"</li>";	
+				
+			}
+			
 	
 		}
 		
 		message+="</ul>";
 		
 		$('#formValidationErrors').append(message);
-		
 		$('#formValidationErrors').fadeIn('slow');
 		
 		return;
@@ -168,7 +172,12 @@ function formValidationFail(formPointer,failedFieldArray){
 	for(element in failedFieldArray){
 		
 		var $label=getLabelObj($(failedFieldArray[element]["element"]));	
-		message+="\n\n     "+$label.text()+"  "+failedFieldArray[element]["message"];
+		
+		
+		for(var i=0; i< failedFieldArray[element]['messages'].length; i++){
+				message+="\n\n     "+$label.text()+"  "+failedFieldArray[element]['messages'][i];
+				
+			}
 
 	}
 	alert(message);

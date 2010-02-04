@@ -289,7 +289,7 @@ function FormValidation(formPointer,validateOnLoad){
 		validationTypes['currency']={"function":currency,"message":"Please enter a dollar amount"};
 		validationTypes["gpa"]={"function":checkGPA,"message":"The gpa must between 0.00 and 4.00"};
 		validationTypes['fourDigitYear']={"function":fourDigitYear,"message":"Please enter a valid 4 digit year"};
-		validationTypes['minLength']={"function":minLength,"message":"Your response is not long enough"};
+		validationTypes['minLength']={"function":minLength,"message":minLengthMessage};
 		validationTypes['maxLength']={"function":maxLength,"message":"Your response is too long"};
 	};
 	
@@ -509,6 +509,11 @@ function FormValidation(formPointer,validateOnLoad){
 	}
 	
 	
+	minLengthMessage=function(field){
+		
+		return "hello world";	
+	}
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	* Validates a required field that has a max length.  The class for this is dataType_maxLength_number, where number is the maximum length;
@@ -656,7 +661,7 @@ function FormValidation(formPointer,validateOnLoad){
 	* @member FormValidation
 	* @returns Boolean
 	*/
-	checkValidation=function(formElement){
+	checkValidation=function(formElement,arrayResult){
 
 		if($(formElement).hasClass(requiredClass)||$(formElement).hasClass(formatClass)&&isVisible(formElement)){
 
@@ -672,13 +677,29 @@ function FormValidation(formPointer,validateOnLoad){
 	
 			var result=true;
 			var message= new Array();
+			var failedDataTypes=new Array();
 			
 			for(var i=0;i<dataTypes.length;i++){
 			
 				if(validationTypes[dataTypes[i]]){
 					var thisDataTypeResult=validationTypes[dataTypes[i]]["function"](formElement);
-					if(result)result=thisDataTypeResult;
-					if(!thisDataTypeResult)message.push(validationTypes[dataTypes[i]]["message"]);
+					if(result) result=thisDataTypeResult;
+					if(!thisDataTypeResult){
+						
+						
+						if(typeof validationTypes[dataTypes[i]]["message"]=="string")message.push(validationTypes[dataTypes[i]]["message"]);
+						
+						else{
+							//message is a function	
+							message.push(validationTypes[dataTypes[i]]["message"](formElement));
+						
+						}
+						
+						
+						
+						
+						failedDataTypes.push(dataTypes[i]);
+					}
 				}
 				
 				else debugStatement("Unknown dataType in checkValidation method: "+dataTypes[i]);
@@ -688,8 +709,9 @@ function FormValidation(formPointer,validateOnLoad){
 			
 			
 			if(result&& typeof fieldValidationPass!="undefined")fieldValidationPass(formElement,message,dataTypes,result);
-			else if(!result&&typeof fieldValidationFail!="undefined")fieldValidationFail(formElement,message,dataTypes,result);
+			else if(!result&&typeof fieldValidationFail!="undefined")fieldValidationFail(formElement,message,failedDataTypes,result);
 			
+			if(!result&&arrayResult!=undefined&&arrayResult==true) return {"result":result,"messages":message,"dataTypes":failedDataTypes};
 			return result;
 		}//if requried and is visible
 		
@@ -719,18 +741,38 @@ function FormValidation(formPointer,validateOnLoad){
 		if(callExternalFunct==undefined||typeof callExternalFunct!="boolean")callExternalFunct=true;
 		
 		if(typeof formValidationOverRide!="undefined"&&formValidationOverRide(formPointer)) return formValidationOverRide(formPointer);
-		if(typeof formPreValidationCheck!="undefined" &&!formPreValidationCheck(formPointer)) return false; // added for EA - if returns false - stop validation and stop submit
+		if(typeof formPreValidationCheck!="undefined" &&!formPreValidationCheck(formPointer)) return false; 
 		var failedFieldNames=new Array();
 		var isFormValid=true;
 		
 		
 		$(formPointer).find("*:input").each(function(){
-			if(($(this).hasClass(requiredClass)||$(this).hasClass(formatClass))&&!checkValidation(this)){
+			var validation= checkValidation(this,true);
+			if(($(this).hasClass(requiredClass)||$(this).hasClass(formatClass))&&typeof validation!="boolean"){
 				isFormValid=false;
-				var dataType=defaultDataType;
+				
+				
+				//{"result":result,"messages":message,"dataTypes":dataTypes};
+				
+				
+				
+				
+				if(validation.dataTypes==""||validation.dataTypes==undefined)validation.dataTypes[0]=defaultDataType; 
+				
+				failedFieldNames[$(this).attr('name')]={"element":$(this),"messages":validation.messages,"dataTypes":validation.dataTypes,"name":$(this).attr('name')};
+				
+				
+				
+				
+				
+				
+				
+				/*var dataType=defaultDataType;
 				if($(this).attr('dataType'))dataType=$(this).attr('dataType');
 				
-				failedFieldNames[$(this).attr('name')]={"element":$(this),"message":validationTypes[dataType]["message"],"dataType":dataType,"name":$(this).attr('name')};
+				
+				
+				failedFieldNames[$(this).attr('name')]={"element":$(this),"message":validationTypes[dataType]["message"],"dataType":dataType,"name":$(this).attr('name')};*/
 			}
 													 
 		});
