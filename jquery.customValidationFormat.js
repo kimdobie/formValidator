@@ -73,26 +73,37 @@ function formValidationRequiredElementInit(formElement){
 
 
 
-function fieldValidationFail(formElement,message,dataType,result){
+function fieldValidationFail(formElement,messages,dataTypes,result){
 	//Function called when a field fails validation
 	// Add message to next td
+	
+	//Note, messages,dataTypes are arrays
+	
 
 	var $message=getMessageObj(formElement);
-	
+	var messageText="* ";
+	for(var i=0;i<messages.length;i++){
+		messageText+=messages[i]+" *";
+		
+	}
 	//need to determine if this already exists - if not add it
-	if($message.find('span.'+messageClass).length==0){
-		$message.html("<span class='"+messageClass+"' style='display:none'>* "+message+" *");
+	if($message.find('span.'+messageClass).length==0||$message.find('span.'+messageClass).text()!=messageText){
+		$message.html("<span class='"+messageClass+"' style='display:none'>"+messageText+"");
 		$message.find('span.'+messageClass).fadeIn('slow');
 	}
+	
+	
 	
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function fieldValidationPass(formElement,message,dataType,result){
+function fieldValidationPass(formElement,messages,dataTypes,result){
 	//Function called when a field passes validation
 	// Remove message in next td
+	
+	//Note, messages,dataTypes are arrays
 	
 	var $message=getMessageObj(formElement);
 	$message.find('span.'+messageClass).fadeOut('slow',function(){$message.html("");});

@@ -615,36 +615,38 @@ function FormValidation(formPointer,validateOnLoad){
 			//var dataType=defaultDataType; //Generic
 			
 			
-			var dataType=extractDataFromClassName($(formElement).attr('class'),dataTypeClassStarter);
+			var dataTypes=extractDataFromClassName($(formElement).attr('class'),dataTypeClassStarter);
+		
 			
-			if(dataType==""||dataType==undefined)dataType=defaultDataType; 
+			if(dataTypes==""||dataTypes==undefined)dataTypes[0]=defaultDataType; 
 				
-			//if($(formElement).attr(dataTypeAttribute)!=""&&$(formElement).attr(dataTypeAttribute)!=undefined ){
-				//dataType=$(formElement).attr(dataTypeAttribute);	
 	
-			var result;
+			var result=true;
 	
-			var message="";
-			if(validationTypes[dataType]){
-				result=validationTypes[dataType]["function"](formElement);
-				message=validationTypes[dataType]["message"];
+			var message= new Array();
+			
+			
+			for(var i=0;i<dataTypes.length;i++){
+				
+				if(validationTypes[dataTypes[i]]){
+					var thisDataTypeResult=validationTypes[dataTypes[i]]["function"](formElement);
+					if(result)result=thisDataTypeResult;
+					if(!thisDataTypeResult)message.push(validationTypes[dataTypes[i]]["message"]);
+				}
+				
+				else debugStatement("Unknown dataType in checkValidation method: "+dataType);
+				
+				
 			}
 			
-			else{
-				debugStatement("Unknown dataType in checkValidation method: "+dataType);
-				
-				result=true; // this insures that any messed-up or unreconginzed datatype will validate true
-			}
 			
-			if(result){
-			if(typeof fieldValidationPass!="undefined")fieldValidationPass(formElement,message,dataType,result);
-		}
-		else{ 
-			if(typeof fieldValidationFail!="undefined")fieldValidationFail(formElement,message,dataType,result);
-		}
+			if(result&& typeof fieldValidationPass!="undefined")fieldValidationPass(formElement,message,dataTypes,result);
+			else if(!result&&typeof fieldValidationFail!="undefined")fieldValidationFail(formElement,message,dataTypes,result);
+			
 			return result;
-		}
-		else return true;
+		}//if requried and is visible
+		
+		return true; //There wasn't a required class or is not visible
 		
 	};
 	this.checkValidation=function(formElement){return checkValidation(formElement)};
@@ -796,11 +798,14 @@ function FormValidation(formPointer,validateOnLoad){
 	
 	extractDataFromClassName=function(classNames, classStarter){
 			var classes = classNames.split(' '); // Spit classNamge into separate classes - so each can be evaluated
+			var returnArray=new Array();
 			
 			for(var i in classes){
-				if(classes[i].match(classStarter)) return classes[i].replace(classStarter,''); // There is a match
+				if(classes[i].match(classStarter)) returnArray.push(classes[i].replace(classStarter,'')); // There is a match
+				
 			}
-			return ''; //There wasn't a match
+	
+			return returnArray;
 		};
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	
