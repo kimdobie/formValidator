@@ -6,17 +6,19 @@
 /////////////////////////////////// INFO ////////////////////////////////////////////////////
 //This library was created by Kim Doberstein
 //
-// Version 1.2.1beta 
-// Date: 02/02/2010
+// Version 2.0 beta 
+// Date: 02/05/2010
 //
 // Basic framework for form and form field validation
 
 // NOTE: This library requries the jQuery framework.  It was tested using version 1.4.1
+
+//This library is composed of two files. 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////// SETTING UP YOUR HTML //////////////////////////////////////
 // 
-// Any form element that is "required" or should be tested needs to have a  class of "required"
+// Any form element that is "required" needs to have a  class of "required"
 //
 //  <input name="text1" type="text" class="required"  />
 //
@@ -37,6 +39,7 @@
 //  event in a validateEvent  attribute:
 
 //<input name="text1" type="text" class="required dataType_email"  validateEvent="change" />
+// Note - this has not been tested.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +54,7 @@
 //
 // In addtion, an onsubmit listener is added to the form tag.  When submitted, the form validates each
 // form element with a "required" class.  If the all the elements pass validation, the form is sumitted.
-// If not, the form is prevented from submitting.  NOTE this object will remove anything set in the "onsubmit" attribute.
+// If not, the form is prevented from submitting.  
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,9 +69,10 @@
 // "currency" - Checks to see if the user entered a dollar ammount - note a "$" before the number is optional as are commas.
 // "gpa"- Checks to see if a user entered a vale between 0.00 and 4.00".
 //'fourDigitYear'- Checks to see if a user entered nothing or a valid four digit year
+// "minLength" - The user must enter a minimum number of charicters.  The class should end in the minimum number of charicters to pass validation.  For example "dataType_minLength_15"
+// "maxLength" - The user must enter under  maximum number of charicters.  The class should end in the maximum number of charicters to pass validation.  For example "dataType_maxLength_50"
 
-//*** Note: the above must start with "dataType_" when added as a class.  See "SETTING UP YOUR HTML" section.
-
+//*** Note: the above must start with "dataType_" when added as a class.  For example: "dataType_phone"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,14 +99,7 @@
 // validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This field must be set to 'Kim'"};
 
 // Note you can add as may entries as needed.  Message is optional.
-
-// ADD VIA THE addDataType METHOD (Not recommended)
-// The second way to add a datatype is to use the addDataType method.
-//  The addDataType method takes 3 parameters, dataType name, dataType function, and message
-//  addDataType(dataType,dataTypeFunction,message)
-//
-// EXAMPLE
-// validate.addDataType("mustBeKim",mustBeKimFunct,"This field must be set to 'Kim'");
+// It is recommended that you save this at the top of the jquery.customValidationFormat.js file
 
 
 // After using either method described above, the following form element will be validated correctly:
@@ -111,16 +108,7 @@
 // NOTE: Any custom dataTypes will override any build-in dataType.
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////// ADDING DATA TYPES INTO TO THE OBJECT ITSELF///////////////////////////////
-// NOTE this normally isn't recommended  unless they are to be a permanent part of the object. The 
-// method described should be used instead.
-//
-//  First add an entry in the setInternalValidationTypes method.
-//
-//  Secondly create a new method.  The method can only have one parameter - a pointer to the form element and
-//                                  it must return a boolean.  True if the element passes, and false if it fails.
-//									See the umIDNum method for a simple example
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 //////////////////////////////// OPTIONAL ADDITIONAL FUNCTIONS /////////////////////////////////////
 //The following functions can be created and used with this library
@@ -146,6 +134,8 @@
 //												Nice for allowing users to save a form without validation.  
 //
 // Note: these functions are not required for this library to function correctly
+// Note: examples of these functions are saved in the jquery.customValidationFormat.js file
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////USING THIS LIBRARY WITH AJAX AND DOM SCRIPTING////////////////////////
@@ -289,7 +279,7 @@ function FormValidation(formPointer,validateOnLoad){
 		validationTypes['currency']={"function":currency,"message":"Please enter a dollar amount"};
 		validationTypes["gpa"]={"function":checkGPA,"message":"The gpa must between 0.00 and 4.00"};
 		validationTypes['fourDigitYear']={"function":fourDigitYear,"message":"Please enter a valid 4 digit year"};
-		validationTypes['minLength']={"function":minLength,"message":minLengthMessage};
+		validationTypes['minLength']={"function":minLength,"message":"Your response is too short"};
 		validationTypes['maxLength']={"function":maxLength,"message":"Your response is too long"};
 	};
 	
@@ -509,10 +499,6 @@ function FormValidation(formPointer,validateOnLoad){
 	}
 	
 	
-	minLengthMessage=function(field){
-		
-		return "hello world";	
-	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
@@ -647,7 +633,7 @@ function FormValidation(formPointer,validateOnLoad){
 			}
 			
 			$element.bind(listenerEvent,function(){checkValidation(this)});
-			if(typeof formValidationRequiredElementInit!="undefined")formValidationRequiredElementInit(formElement);
+			if(typeof formValidationRequiredElementInit!="undefined"&&$element.hasClass(requiredClass))formValidationRequiredElementInit(formElement);
 			if(validateOnLoad)checkValidation(formElement);
 		}
 	};
@@ -662,16 +648,12 @@ function FormValidation(formPointer,validateOnLoad){
 	* @returns Boolean
 	*/
 	checkValidation=function(formElement,arrayResult){
+		
 
 		if($(formElement).hasClass(requiredClass)||$(formElement).hasClass(formatClass)&&isVisible(formElement)){
 
 			
-			//var dataType=defaultDataType; //Generic
-			
-			
 			var dataTypes=extractDataFromClassName($(formElement).attr('class'),dataTypeClassStarter,true);
-		
-			
 			if(dataTypes==""||dataTypes==undefined)dataTypes[0]=defaultDataType; 
 				
 	
@@ -679,36 +661,37 @@ function FormValidation(formPointer,validateOnLoad){
 			var message= new Array();
 			var failedDataTypes=new Array();
 			
-			for(var i=0;i<dataTypes.length;i++){
-			
-				if(validationTypes[dataTypes[i]]){
-					var thisDataTypeResult=validationTypes[dataTypes[i]]["function"](formElement);
-					if(result) result=thisDataTypeResult;
-					if(!thisDataTypeResult){
-						
-						
-						if(typeof validationTypes[dataTypes[i]]["message"]=="string")message.push(validationTypes[dataTypes[i]]["message"]);
-						
-						else{
-							//message is a function	
-							message.push(validationTypes[dataTypes[i]]["message"](formElement));
-						
+			if($(formElement).hasClass(requiredClass)||($(formElement).hasClass(formatClass)&&$(formElement).val()!="")){
+				for(var i=0;i<dataTypes.length;i++){
+				
+					if(validationTypes[dataTypes[i]]){
+						var thisDataTypeResult=validationTypes[dataTypes[i]]["function"](formElement);
+						if(result) result=thisDataTypeResult;
+						if(!thisDataTypeResult){
+							
+							
+							if(typeof validationTypes[dataTypes[i]]["message"]=="string")message.push(validationTypes[dataTypes[i]]["message"]);
+							
+							else{
+								//message is a function	
+								message.push(validationTypes[dataTypes[i]]["message"](formElement));
+							
+							}
+							
+							
+							
+							
+							failedDataTypes.push(dataTypes[i]);
 						}
-						
-						
-						
-						
-						failedDataTypes.push(dataTypes[i]);
 					}
+					
+					else debugStatement("Unknown dataType in checkValidation method: "+dataTypes[i]);
+					
+					
 				}
-				
-				else debugStatement("Unknown dataType in checkValidation method: "+dataTypes[i]);
-				
-				
+			
 			}
-			
-			
-			if(result&& typeof fieldValidationPass!="undefined")fieldValidationPass(formElement,message,dataTypes,result);
+			if((result&& typeof fieldValidationPass!="undefined"))fieldValidationPass(formElement,message,dataTypes,result);
 			else if(!result&&typeof fieldValidationFail!="undefined")fieldValidationFail(formElement,message,failedDataTypes,result);
 			
 			if(!result&&arrayResult!=undefined&&arrayResult==true) return {"result":result,"messages":message,"dataTypes":failedDataTypes};

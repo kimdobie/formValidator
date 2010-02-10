@@ -18,11 +18,42 @@ function mustBeKimFunct(field){
 	else return false;
 }
 
+function ajax(field){
+	 false;
+}
+
+function ajaxMessage(field){
+	return "hello world";
+}
 //Functions entered in the validationDataTypesArray will be picked up by the formValidation object
 var validationDataTypesArray=new Array();
 validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This field must be set to 'Kim'"};
-
+validationDataTypesArray["ajax"]={"function":ajax,"message":ajaxMessage};
 </script>
+
+
+
+<style type="text/css">
+	*{font-family:Tahoma, Geneva, sans-serif;font-size:13px}
+	
+	td{border-bottom:1px solid #ccc; padding:3px; vertical-align:top}
+	
+	.requiredText{color:#F60}
+
+
+#formValidationErrors{
+	
+	padding:10px;
+	background-color:#FCC;
+	color:#8D0100;
+	display:none;
+}
+#formValidationErrors ul{list-style:none;}
+
+
+.requiredTextBold{font-weight:bold; color:#903; font-size:90%;}
+
+</style>
 </head>
 
 <body>
@@ -31,14 +62,10 @@ validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This
 
 <form method="post" action="#" id="myForm">
 	<table>
-		<tr>
-			<td><label for="uofmID">U of M ID Number:</label></td>
-			<td><input name="uofmID" id="uofmID" type="text" class="required dataType_umIDNum"   /></td>
-			<td></td>
-		</tr>
         <tr>
-			<td><label for="saying">Favorite Saying:</label></td>
-			<td><input name="saying" id="saying" type="text"  class="required dataType_minLength_5 dataType_maxLength_8"  /></td>
+			<td><label for="saying">Favorite Word <br />
+		    (between 10 and 20 characters:</label></td>
+			<td><input name="saying" id="saying" type="text"  class="required dataType_minLength_10 dataType_maxLength_20"  /></td>
 			<td></td>
 		</tr>
 		<tr>
@@ -91,19 +118,24 @@ validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This
 			<td><input name="kim" id="kim" type="text"    class="required dataType_mustBeKim" /></td>
 			<td></td>
 		</tr>
-		<tr>
-			<td><label for="randomThoughts">Random Thoughts:</label></td>
-			<td><textarea name="randomThoughts" id="randomThoughts"></textarea></td>
+		
+        
+        <tr>
+			<td><label for="ajax">What does AJAX mean:</label></td>
+			<td><input name="ajax" id="ajax" type="text"    class="required dataType_ajax" /></td>
 			<td></td>
 		</tr>
+        
+        
+        
 		<tr>
-			<td><label for="usage">Have You Read The Usage Agreement:</label></td>
+			<td><label for="usage">Do you agree:</label></td>
 		  <td><input type="checkbox" name="usage" id="usage"  class="required" value="yes" />		    Yes</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td colspan="3">
-				<input type="hidden" name="saveOrSubmit" id="saveOrSubmit" value="" />
+			
 			
 			
 				<input type="submit" name="submit" value="Submit Form"  /> 
