@@ -247,6 +247,7 @@ function FormValidation(formPointer,validateOnLoad){
 	var validateEventAttribute="validateEvent";
 	var dataTypeAttribute="dataType";
 	var dataTypeClassStarter="dataType_";
+	var eventClassStarter="validateEvent_";
 	
 	var defaultDataType="nonEmpty";
 	
@@ -575,8 +576,8 @@ function FormValidation(formPointer,validateOnLoad){
 				if(typeof validationDataTypesArray[dataType]=="object"){
 					if(validationDataTypesArray[dataType]['function']){
 						validationTypes[dataType]['function']=validationDataTypesArray[dataType]['function'];
-						if(validationDataTypesArray[dataType]['message']) validationTypes[dataType]['message']=validationDataTypesArray[dataType]['message'];
-						else validationTypes[dataType]['message']="";	
+						//if(validationDataTypesArray[dataType]['message']) validationTypes[dataType]['message']=validationDataTypesArray[dataType]['message'];
+						//else validationTypes[dataType]['message']="";	
 					}
 					
 					
@@ -585,7 +586,7 @@ function FormValidation(formPointer,validateOnLoad){
 				}
 				else if(typeof validationDataTypesArray[dataType]=="function"){
 					validationTypes[dataType]['function']=validationDataTypesArray[dataType];
-					validationTypes[dataType]['message']="";
+					//validationTypes[dataType]['message']="";
 					
 				}
 				else debugStatement("Unable to add this data type to the validationTypes array: "+dataTypes);
@@ -630,10 +631,11 @@ function FormValidation(formPointer,validateOnLoad){
 			$element.each(function(){tag=this.tagName});	
 				
 			//attach validation item
-			var listenerEvent=""; 
-			if($element.attr(validateEventAttribute)){
-					listenerEvent=$element.attr(validateEventAttribute);
-			}
+			var listenerEvent=extractDataFromClassName($(formElement).attr('class'), eventClassStarter);
+			
+			
+			if(listenerEvent.length>0)listenerEvent=listenerEvent[0];
+			
 			else {
 				if($element.is(":text")){listenerEvent=textBoxEvent;}
 				else if($element.is(":checkbox")){listenerEvent=checkBoxEvent;}

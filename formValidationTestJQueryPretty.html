@@ -21,9 +21,14 @@ function mustBeKimFunct(field){
 }
 
 
+
+
+
+
 //Functions entered in the validationDataTypesArray will be picked up by the formValidation object
 var validationDataTypesArray=new Array();
 validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct};
+
 
 </script>
 
@@ -111,16 +116,11 @@ validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct};
 		</tr>
 		<tr>
 			<td><label for="kim">Enter Kim:</label></td>
-			<td><input name="kim" id="kim" type="text"    class="required dataType_mustBeKim" /></td>
+			<td><input name="kim" id="kim" type="text"    class="required dataType_mustBeKim validateEvent_keyup" /></td>
 			<td></td>
 		</tr>
 		
-        
-        <tr>
-			<td><label for="ajax">What does AJAX mean:</label></td>
-			<td><input name="ajax" id="ajax" type="text"    class="" /></td>
-			<td></td>
-		</tr>
+   
         
         
         
