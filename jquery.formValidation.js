@@ -7,7 +7,7 @@
 //This library was created by Kim Doberstein
 //
 // Version 2.0 beta 
-// Date: 02/05/2010
+// Date: 02/10/2010
 //
 // Basic framework for form and form field validation
 
@@ -77,28 +77,30 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////// ADDING A DATA TYPE ///////////////////////////////////////////////
-//  First you need to creat a function that will be called to validate your new datatype.
-// The function must contain only one parameter - a pointer to the form element and it must return a 
-// boolean.  True if the element passes, and false if it fails.
+//  First you need to create a function that will be called to validate your new datatype.
+// The function must contain only one parameter - a pointer to the form element and it must return
+// an object in this format: {"result":true/false, "message":"Your error message here"}
 //
 // EXAMPLE:
-// function mustBeKimFunct(field){
-//	if(field.value=="Kim") return true;
-//	else return false;
+//function mustBeKimFunct(field){
+//	var result=false;
+	
+//	if($(field).val()=="Kim") 	result=true;
+//	return {"result":result, "message":"This field must be set to 'Kim'"};
 //}
 
 // Secondly, there are two ways to have this object call your function.
 //
 // ADD VIA THE validationDataTypesArray ARRAY
-// First and probably the easies is to create an array called: validationDataTypesArray
+// Create an array called: validationDataTypesArray
 // Then add a member to this array using this format:
-// validationDataTypesArray[dataTypeName]={"function":functionName,"message":Message if fails validation};
+// validationDataTypesArray[dataTypeName]={"function":functionName};
 //
 // EXAMPLE:  
 // var validationDataTypesArray=new Array();
-// validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This field must be set to 'Kim'"};
+// validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct};
 
-// Note you can add as may entries as needed.  Message is optional.
+// Note you can add as may entries as needed.  
 // It is recommended that you save this at the top of the jquery.customValidationFormat.js file
 
 
@@ -173,7 +175,7 @@
 //If you need to check the validation of a single form element and need to know the result of the validation, call the checkValidationBoolean method
 
 //Example:
-// $('#myFormElementId').checkValidationBoolean()  // Note - this will not return a boolean - it returns a pointer to the form element object.
+// $('#myFormElementId').checkValidationBoolean()  // NOTE - This returns a boolean, so it must be at the end of a jQuery daisychain
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -186,43 +188,39 @@ $(document).ready(function(){validate.init()});
 
 ///////////////////////////// JQUERY METHODS //////////////////////////////////////////////////
 
+//Validate a newly created form
 $.fn.setEntireForm = function() {
 	$(this).each(function(){validate.setEntireForm(this);});
     return this;
 };
 
-$.fn.setFormElement = function() { // note - normally this isn't called - use the addValidation method instead
+/*$.fn.setFormElement = function() { // note - normally this isn't called - use the addValidation method instead
 	$(this).each(function(){validate.setFormElement(this);});
     return this;
-};
+};*/
 
+
+//add validation to a single form element
 $.fn.addValidation = function() {
 	$(this).each(function(){validate.addValidation(this);});
     return this;
 };
 
 $.fn.checkValidation = function() {
-	$(this).each(function(){validate.checkValidation(this);});
-    return this;
-};
-
-$.fn.checkValidationBoolean=function(){
 	var result=false;
 	$(this).each(function(){ result=validate.checkValidation(this);});
     return result;
 };
 
 
-$.fn.validateForm = function(callExternalFunct) {
-	$(this).each(function(){validate.validateForm(this,callExternalFunct);});
-    return this;
-};
 
-$.fn.validateFormBoolean = function(callExternalFunct) {
+$.fn.validateForm = function(callExternalFunct) {
 	var validationResult=false;
 	$(this).each(function(){validationResult=validate.validateForm(this);});
 	return validationResult;
 };
+
+
 
 $.fn.removeValidation = function() { // This is to remove the validation for a single form element.
 	$(this).each(function(){validate.removeValidation(this);});
@@ -269,19 +267,39 @@ function FormValidation(formPointer,validateOnLoad){
 	* @private
 	* @returns nothing
 	*/
+	
+	var nonEmptyMessage="This field is required";
+	var umIDNumMessage="Please enter a valid UofM ID number";
+	var date4YearMessage="Please enter a valid date (mm/dd/yyyy)";
+	var phoneMessage="Please enter a valid phone number (xxx-xxx-xxxx)";
+	var numericalMessage="Please enter a number";
+	var emailMessage="Please enter an email address";
+	var currencyMessage="Please enter a dollar amount";
+	var gpaMessage="The gpa must between 0.00 and 4.00";
+	var fourDigitYearMessage="Please enter a valid 4 digit year";
+	var minLengthMessage="Your response is too short";
+	var maxLengthMessage="Your response is too long";
+	
+	
+	
+	
 	setInternalValidationTypes=function(){
-		validationTypes["nonEmpty"]={"function":nonEmpty,"message":"This field is required"};
-		validationTypes["umIDNum"]={"function":UMIDNum,"message":"Please enter a valid UofM ID number"};
-		validationTypes["date4Year"]={"function":date4Year,"message":"Please enter a valid date (mm/dd/yyyy)"};
-		validationTypes["phone"]={"function":phone,"message":"Please enter a valid phone number (xxx-xxx-xxxx)"};
-		validationTypes['numerical']={"function":numerical,"message":"Please enter a number"};
-		validationTypes['email']={"function":email,"message":"Please enter an email address"};
-		validationTypes['currency']={"function":currency,"message":"Please enter a dollar amount"};
-		validationTypes["gpa"]={"function":checkGPA,"message":"The gpa must between 0.00 and 4.00"};
-		validationTypes['fourDigitYear']={"function":fourDigitYear,"message":"Please enter a valid 4 digit year"};
-		validationTypes['minLength']={"function":minLength,"message":"Your response is too short"};
-		validationTypes['maxLength']={"function":maxLength,"message":"Your response is too long"};
+		validationTypes["nonEmpty"]={"function":nonEmpty};
+		validationTypes["umIDNum"]={"function":UMIDNum};
+		validationTypes["date4Year"]={"function":date4Year};
+		validationTypes["phone"]={"function":phone};
+		validationTypes['numerical']={"function":numerical};
+		validationTypes['email']={"function":email};
+		validationTypes['currency']={"function":currency};
+		validationTypes["gpa"]={"function":checkGPA};
+		validationTypes['fourDigitYear']={"function":fourDigitYear};
+		validationTypes['minLength']={"function":minLength};
+		validationTypes['maxLength']={"function":maxLength};
 	};
+	
+	
+	
+	
 	
 	
 	////////////////////////////////////////VALIDATION OF FIELD TYPES//////////////////////////////////////////////////
@@ -299,19 +317,24 @@ function FormValidation(formPointer,validateOnLoad){
 		var tagname=formElement.tagName;
 		var $element=$(formElement);
 
+		
+
 		if($element.is(":checkbox")){
-			if($element.is(":checked"))return true;;
+			if($element.is(":checked"))return {"result":true, "message":nonEmptyMessage};
 		}
 		
 		else if($element.is(":radio")){
-			if($('input[name='+$element.attr('name')+']:checked').length>0) return true;
+			if($('input[name='+$element.attr('name')+']:checked').length>0) return {"result":true, "message":nonEmptyMessage};
 		}
 		else{
 			
 			var pattern=/\S+/i;
-			return pattern.test($element.val());
+			
+			
+			return {"result":pattern.test($element.val()), "message":nonEmptyMessage};
 		}
-		return false;
+		
+		return {"result":false, "message":nonEmptyMessage}
 	};
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
@@ -337,10 +360,11 @@ function FormValidation(formPointer,validateOnLoad){
 		}
 		else if(fieldLength==0){
 			//nothing was entered
-			return false;	
+				
+			return {"result":false, "message":numericalMessage}
 		}
 		var pattern=new RegExp("^\\d{"+fieldLength+"}$","i");
-		return pattern.test($element.val());
+		return {"result":pattern.test($element.val()), "message":numericalMessage}
 		
 	};
 	
@@ -356,7 +380,9 @@ function FormValidation(formPointer,validateOnLoad){
 	
 	UMIDNum=function(formElementPointer){
 		var pattern=/^\d{7}$/i;
-		return pattern.test($(formElementPointer).val());
+		
+		return {"result":pattern.test($(formElementPointer).val()), "message":UMIDNumMessage}
+		
 		
 	};
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -375,10 +401,10 @@ function FormValidation(formPointer,validateOnLoad){
 		if(result){
 			//check to see if month us between 1 and 12
 			var month=pattern.exec($(formElementPointer).val())[1];
-			if(month>0&&month<13) return true;
-			else return false
+			if(month>0&&month<13) return {"result":true, "message":date4YearMessage};
+			else return {"result":false, "message":date4YearMessage};
 		}
-		else return false;
+		else return {"result":false, "message":date4YearMessage};
 		
 	};
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -393,7 +419,8 @@ function FormValidation(formPointer,validateOnLoad){
 	
 	phone=function(formElementPointer){
 		var pattern=/^\d{3}-?\d{3}-?\d{4}$/i;
-		return pattern.test($(formElementPointer).val());
+		
+		return {"result":pattern.test($(formElementPointer).val()), "message":phoneMessage};
 		
 	};
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -408,7 +435,8 @@ function FormValidation(formPointer,validateOnLoad){
 	
 	email=function(formElementPointer){
 		var pattern=/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/; // note this pattern is from: http://www.quirksmode.org/js/mailcheck.html
-		return pattern.test($(formElementPointer).val());
+	
+		return {"result":pattern.test($(formElementPointer).val()), "message":emailMessage};
 		
 	};
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -424,7 +452,7 @@ function FormValidation(formPointer,validateOnLoad){
 	currency=function(formElementPointer){
 		// note this pattern is modified version from:http://lawrence.ecorp.net/inet/samples/regexp-validate2.php
 		var pattern=/^\$?[1-9][0-9]{0,2}(,?[0-9]{3})*(\.[0-9]{2})?$/; 
-		return pattern.test($(formElementPointer).val());
+		return {"result":pattern.test($(formElementPointer).val()), "message":currencyMessage};
 		
 	};
 	
@@ -439,8 +467,8 @@ function FormValidation(formPointer,validateOnLoad){
 	*/
 	checkGPA=function(field){
 		var val=$(field).val();
-		if(parseFloat(val)>4||parseFloat(val)<0) return false;
-		else return true;
+		if(parseFloat(val)>4||parseFloat(val)<0) return {"result":false, "message":checkGPAMessage};
+		else return {"result":true, "message":checkGPAMessage};
 		
 	}
 
@@ -456,31 +484,14 @@ function FormValidation(formPointer,validateOnLoad){
 	fourDigitYear=function(field){
 		//either empty or a valid four digit year.
 		var val=$(field).val();
-		if((parseFloat(val)>1900&&parseFloat(val)<2100)) return true;
-		else return false;
+		if((parseFloat(val)>1900&&parseFloat(val)<2100)) return {"result":true, "message":fourDigitYearMessage};
+		else return {"result":false, "message":fourDigitYearMessage};
 		
 	}
 	
 	
 	
-	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	* Validates a required field that has the "dataType" attribute set to 'fourDigitYear'.
-	* In order to pass, the field value must be larger than 1900 and less than 2100.
-	* @member FormValidation
-	* @author Kim Doberstein
-	* @private
-	* @return
-	*/
-	fourDigitYear=function(field){
-		//either empty or a valid four digit year.
-		var val=$(field).val();
-		if((parseFloat(val)>1900&&parseFloat(val)<2100)) return true;
-		else return false;
-		
-	}
-	
+
 	
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -493,8 +504,8 @@ function FormValidation(formPointer,validateOnLoad){
 	*/
 	minLength=function(field){
 		var length=parseInt(extractDataFromClassName($(field).attr('class'), dataTypeClassStarter+"minLength_"));
-		if($(field).val().length>=length) return true;
-		return false
+		if($(field).val().length>=length) return {"result":true, "message":minLengthMessage};
+		return {"result":false, "message":minLengthMessage};
 	
 	}
 	
@@ -510,8 +521,8 @@ function FormValidation(formPointer,validateOnLoad){
 	*/
 	maxLength=function(field){
 		var length=parseInt(extractDataFromClassName($(field).attr('class'), dataTypeClassStarter+"maxLength_"));
-		if($(field).val().length<=length) return true;
-		return false
+		if($(field).val().length<=length) return {"result":true, "message":maxLengthMessage};
+		return {"result":false, "message":maxLengthMessage};
 	
 	}
 	
@@ -665,22 +676,13 @@ function FormValidation(formPointer,validateOnLoad){
 				for(var i=0;i<dataTypes.length;i++){
 				
 					if(validationTypes[dataTypes[i]]){
-						var thisDataTypeResult=validationTypes[dataTypes[i]]["function"](formElement);
+						var thisDataTypeResult=validationTypes[dataTypes[i]]["function"](formElement).result;
 						if(result) result=thisDataTypeResult;
 						if(!thisDataTypeResult){
 							
 							
-							if(typeof validationTypes[dataTypes[i]]["message"]=="string")message.push(validationTypes[dataTypes[i]]["message"]);
-							
-							else{
-								//message is a function	
-								message.push(validationTypes[dataTypes[i]]["message"](formElement));
-							
-							}
-							
-							
-							
-							
+							message.push(validationTypes[dataTypes[i]]["function"](formElement).message);
+	
 							failedDataTypes.push(dataTypes[i]);
 						}
 					}
@@ -843,7 +845,7 @@ function FormValidation(formPointer,validateOnLoad){
 	};
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	* This method is used for showing errors.  If the DeBug library (https://wiki.umn.edu/view/EADWebDesigner/DeBug) 
+	* This method is used for showing errors.  If the DeBug library 
 	* is available, the message will be shown in the debugging window.
 	* If the DeBug library is not available, then a javascript alert is shown. 
 	* @param {String} message Message to be displayed in the debugging method.

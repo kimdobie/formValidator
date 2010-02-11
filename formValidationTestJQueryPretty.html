@@ -14,21 +14,17 @@
 
 //////////////////////// CUSTOM DATA TYPES /////////////////////////////////////////////
 function mustBeKimFunct(field){
-	if(field.value=="Kim") return true;
-	else return false;
+	var result=false;
+	
+	if($(field).val()=="Kim") 	result=true;
+	return {"result":result, "message":"This field must be set to 'Kim'"};
 }
 
-function ajax(field){
-	 false;
-}
 
-function ajaxMessage(field){
-	return "hello world";
-}
 //Functions entered in the validationDataTypesArray will be picked up by the formValidation object
 var validationDataTypesArray=new Array();
-validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This field must be set to 'Kim'"};
-validationDataTypesArray["ajax"]={"function":ajax,"message":ajaxMessage};
+validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct};
+
 </script>
 
 
@@ -122,7 +118,7 @@ validationDataTypesArray["ajax"]={"function":ajax,"message":ajaxMessage};
         
         <tr>
 			<td><label for="ajax">What does AJAX mean:</label></td>
-			<td><input name="ajax" id="ajax" type="text"    class="required dataType_ajax" /></td>
+			<td><input name="ajax" id="ajax" type="text"    class="" /></td>
 			<td></td>
 		</tr>
         
