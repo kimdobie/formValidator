@@ -1,4 +1,7 @@
 
+/////////////////////////////// START ON PAGE LOAD////////////////////////////////////////////////
+$(document).ready(function(){$('form').setFormValidation();});
+
 // NOTES:
 //These functions are called from the jquery.formValidator.js file.  
 
@@ -119,6 +122,18 @@ function formValidationRequiredElementInit(formElement){
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// This function is called when a validation is removed from a form element
+// By default it removes the message and "*" in teh label
+
+function formValidationRemoveRequiredElement(formElement){
+	getLabelObj(formElement).find('span.'+labelClass).remove();
+	
+	getMessageObj(formElement).find('span.'+messageClass).remove();
+	
+	getLabelObj(formElement).removeClass(failedLabelClass);
+
+}
 
 
 

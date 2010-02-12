@@ -6,198 +6,30 @@
 /////////////////////////////////// INFO ////////////////////////////////////////////////////
 //This library was created by Kim Doberstein
 //
-// Version 2.0 beta 
-// Date: 02/10/2010
-//
-// Basic framework for form and form field validation
-
-// NOTE: This library requries the jQuery framework.  It was tested using version 1.4.1
-
-//This library is composed of two files. 
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////// SETTING UP YOUR HTML //////////////////////////////////////
-// 
-// Any form element that is "required" needs to have a  class of "required"
-//
-//  <input name="text1" type="text" class="required"  />
-//
-// Note: each radio button in a radio-button group will need have the "required" class
-
-// By default, the FormValidation object will check to see that the form element has a non-empty value.
-// Something is entered in a textbox/textarea, a item is selected in a select box, checkbox is checked, and
-// at least one radio button in a radio group is selected.
-
-// If you want another kind of validation, you need to add a "dataType" class. Build-in reconginzied
-// datatypes and directions on how to add your own dataTypes are listed below.
-//
-//  <input name="text1" type="text" class="required dataType_email" />
-
-//  By default on a given event ("click","blur","change"), the form element will be validated. 
-//  The default event listeners or a given form element type are set at the top of the object.
-//  If you want a particular element to be validated on a different  event, you can add the wanted
-//  event in a validateEvent  attribute:
-
-//<input name="text1" type="text" class="required dataType_email"  validateEvent="change" />
-// Note - this has not been tested.
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////// WHAT DOES THIS LIBRARY DO - Constructor  ///////////////////////
-// First the FormValidation object should be created on page load.  See the START ON PAGE LOAD section
-// for an example.
-
-// When created, by default, the object goes through each form element and if it as a "required" class,
-// it automatically adds a listener (usually on click or onblur).  When a user interacts with that form element, 
-// that single element is validated.  NOTE: the listener type can be changed either by changing the global variable
-// at the top of the FormValidation object (not recommended) or by using a series of setter methods.
-//
-// In addtion, an onsubmit listener is added to the form tag.  When submitted, the form validates each
-// form element with a "required" class.  If the all the elements pass validation, the form is sumitted.
-// If not, the form is prevented from submitting.  
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////// BUILT IN DATA TYPES /////////////////////// ///////////////////////
-// "nonEmpty" - Default - check to see that the form element has a non-empty value
-// "umIDNum" - Checks to see if the user entered 7 numerical charicters
-// "date4Year" - Checks to see if the data was entered in the following format: mm/dd/yyyy
-// "phone" - Checks to see if the data entered is in the folloing format: xxx-xxx-xxxx.  Note area code is required, but dashes are optional.
-// "numerical" - Checks to see if data entered only contains numbers.  If the "numlength" attribute is set, will make sure the length is equal to the "numlength" attribute.
-// "email" - Checks to see if data entered is in the format of an email address.
-// "currency" - Checks to see if the user entered a dollar ammount - note a "$" before the number is optional as are commas.
-// "gpa"- Checks to see if a user entered a vale between 0.00 and 4.00".
-//'fourDigitYear'- Checks to see if a user entered nothing or a valid four digit year
-// "minLength" - The user must enter a minimum number of charicters.  The class should end in the minimum number of charicters to pass validation.  For example "dataType_minLength_15"
-// "maxLength" - The user must enter under  maximum number of charicters.  The class should end in the maximum number of charicters to pass validation.  For example "dataType_maxLength_50"
-
-//*** Note: the above must start with "dataType_" when added as a class.  For example: "dataType_phone"
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////// ADDING A DATA TYPE ///////////////////////////////////////////////
-//  First you need to create a function that will be called to validate your new datatype.
-// The function must contain only one parameter - a pointer to the form element and it must return
-// an object in this format: {"result":true/false, "message":"Your error message here"}
-//
-// EXAMPLE:
-//function mustBeKimFunct(field){
-//	var result=false;
-	
-//	if($(field).val()=="Kim") 	result=true;
-//	return {"result":result, "message":"This field must be set to 'Kim'"};
-//}
-
-// Secondly, there are two ways to have this object call your function.
-//
-// ADD VIA THE validationDataTypesArray ARRAY
-// Create an array called: validationDataTypesArray
-// Then add a member to this array using this format:
-// validationDataTypesArray[dataTypeName]={"function":functionName};
-//
-// EXAMPLE:  
-// var validationDataTypesArray=new Array();
-// validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct};
-
-// Note you can add as may entries as needed.  
-// It is recommended that you save this at the top of the jquery.customValidationFormat.js file
-
-
-// After using either method described above, the following form element will be validated correctly:
-// <input name="text2" type="text" required="required" dataType="mustBeKim" />
-//
-// NOTE: Any custom dataTypes will override any build-in dataType.
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-//////////////////////////////// OPTIONAL ADDITIONAL FUNCTIONS /////////////////////////////////////
-//The following functions can be created and used with this library
-//
-//			formValidationRequiredElementInit - Function called when a page loads or a new required element is added to the form
-// 			formValidationRemoveRequiredElement - Function called when a user no longer needs an element to be required (aka the method was called)
-//
-//         fieldValidationPass(formElementPointer,message,dataType,name,result) - Function called when a field passes validation
-//
-//         fieldValidationFail(formElementPointer,message,dataType,name,result) - Function called when a field fails validation
-//
-//         formValidationFail(formPointer,failedFieldArray) - Function called when a form fails validation (usually onsubmit)
-//															   The failedField Array contains an array of failed form element informat of:
-//																failedFieldNames[name]={
-//																	"element":elementPointer,
-//																	"message":message,
-//																	"dataType":dataType,
-//																	"name":name};
-//			formValidationPass(formPointer) - Function called if a form passes validation.  Note this function must return true and will be run before the form is submitted.
-//
-//		formValidationOverRide(formPointer) - If this exists and it returns true, this function will over-ride the form validation method.  If it returns
-//												false, the formValidation will be called.
-//												Nice for allowing users to save a form without validation.  
-//
-// Note: these functions are not required for this library to function correctly
-// Note: examples of these functions are saved in the jquery.customValidationFormat.js file
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////USING THIS LIBRARY WITH AJAX AND DOM SCRIPTING////////////////////////
-//  If you add a new form tag via DOM , you need to call the setEntireForm method.
-// Note that all required form elements will have listeners added (aka you do not
-// need to call the setFormElement method for elements inside this form)
-//
-// Example:
-// $('#myFormID').setEntireForm();
-//
-// If you add a new form element via DOM, and want that element to be validated (aka required) you need
-// to call the addValidation method. This will automatically add the required class and any field listeners.
-//
-// Example:
-// $("#myFormElementId").addValidation();
+// Version 2.0 
+// Date: 02/12/2010
 //
 
-// If you need to validate the entire form without sumitting the form, call the validateForm method.  
 
-//Example:
-// $('#myFormId').validateForm()  // Note - this will not return a boolean - it returns a pointer to the form object.
-
-// If you need to validate the entire form without submitting the form and need to know the result of the valiation, 
-// call the validateFormBoolean method.  
-
-//Example:
-// $('#myFormId').validateFormBoolean()  // NOTE - This returns a boolean, so it must be at the end of a jQuery daisychain
-
-
-// If you need to check the validation of a single form element, call the checkValidation method
-
-//Example:
-// $('#myFormElementId').checkValidation()  // Note - this will not return a boolean - it returns a pointer to the form element object.
-
-//If you need to check the validation of a single form element and need to know the result of the validation, call the checkValidationBoolean method
-
-//Example:
-// $('#myFormElementId').checkValidationBoolean()  // NOTE - This returns a boolean, so it must be at the end of a jQuery daisychain
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////// START ON PAGE LOAD////////////////////////////////////////////////
 
 var validate =new FormValidation(true);  // NOTE: if you need to change this variable, you also need to change it in the jQuery methods below.
 $(document).ready(function(){validate.init()});
 
 
 
+
+
+
+
 ///////////////////////////// JQUERY METHODS //////////////////////////////////////////////////
 
 //Validate a newly created form
-$.fn.setEntireForm = function() {
+$.fn.setFormValidation = function() {
 	$(this).each(function(){validate.setEntireForm(this);});
     return this;
 };
 
-/*$.fn.setFormElement = function() { // note - normally this isn't called - use the addValidation method instead
-	$(this).each(function(){validate.setFormElement(this);});
-    return this;
-};*/
+
 
 
 //add validation to a single form element
@@ -205,6 +37,13 @@ $.fn.addValidation = function() {
 	$(this).each(function(){validate.addValidation(this);});
     return this;
 };
+
+
+$.fn.removeValidation = function() { // This is to remove the validation for a single form element.
+	$(this).each(function(){validate.removeValidation(this);});
+    return this;
+};
+
 
 $.fn.checkValidation = function() {
 	var result=false;
@@ -216,16 +55,13 @@ $.fn.checkValidation = function() {
 
 $.fn.validateForm = function(callExternalFunct) {
 	var validationResult=false;
-	$(this).each(function(){validationResult=validate.validateForm(this);});
+	$(this).each(function(){validationResult=validate.validateForm(this,callExternalFunct);});
 	return validationResult;
 };
 
 
 
-$.fn.removeValidation = function() { // This is to remove the validation for a single form element.
-	$(this).each(function(){validate.removeValidation(this);});
-    return this;
-};
+
 
 
 
@@ -548,14 +384,14 @@ function FormValidation(formPointer,validateOnLoad){
 		setInternalValidationTypes();
 		grabExtraValidationTypes();
 		
-		if(formPointer!=undefined&&formPointer!=""){
+		/*if(formPointer!=undefined&&formPointer!=""){
 			setEntireForm(formPointer);
 			
 		}
 		else{
 			// No form pointer entered - set all forms on the page
 			$('form').each(function(){setEntireForm(this);});
-		}
+		}*/
 		
 	};
 	this.init=function(){init()};
@@ -701,7 +537,6 @@ function FormValidation(formPointer,validateOnLoad){
 			if(!result&&arrayResult!=undefined&&arrayResult==true) return {"result":result,"messages":message,"dataTypes":failedDataTypes};
 			return result;
 		}//if requried and is visible
-		
 		return true; //There wasn't a required class or is not visible
 		
 	};
@@ -765,17 +600,18 @@ function FormValidation(formPointer,validateOnLoad){
 		});
 		
 		
+		
+		
 		if(!isFormValid){
 			if(typeof formValidationFail!="undefined"&&callExternalFunct)formValidationFail(formPointer,failedFieldNames);
 		}
-		else if(typeof formValidationPass!="undefined"&&callExternalFunct&&formValidationPass(formPointer))return isFormValid;
+		else if(typeof formValidationPass!="undefined"&&callExternalFunct&&formValidationPass(formPointer));
 			
-
 		return isFormValid;
 		
 	};
 	
-	this.validateForm=function(formPointer,callExternalFunct){validateForm(formPointer,callExternalFunct)};
+	this.validateForm=function(formPointer,callExternalFunct){return validateForm(formPointer,callExternalFunct)};
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
