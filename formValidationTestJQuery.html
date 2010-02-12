@@ -14,15 +14,86 @@
 
 //////////////////////// CUSTOM DATA TYPES /////////////////////////////////////////////
 function mustBeKimFunct(field){
-	if(field.value=="Kim") return true;
-	else return false;
+	var result=false;
+	
+	if($(field).val()=="Kim") 	result=true;
+	return {"result":result, "message":"This field must be set to 'Kim'"};
 }
+
+
+
+
+
 
 //Functions entered in the validationDataTypesArray will be picked up by the formValidation object
 var validationDataTypesArray=new Array();
-validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This field must be set to 'Kim'"};
+validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct};
+
+
+
+////////////////////// ADD/REMOVE VALIDATION //////////////////////////////////////////
+
+//other
+$(document).ready(function(){
+						   
+	/*************** ADD / REMOVE VALIDATION BUTTONS ***************/
+	$('#removeValidation').click(function(){
+		$('#other').removeValidation();
+		$('#removeValidation').hide();
+		$('#addValidation').show();
+	});
+	
+	$('#addValidation').click(function(){
+		$('#other').addValidation();							   
+									   
+		$('#removeValidation').show();
+		$('#addValidation').hide();	
+	});
+	
+	$('#removeValidation').hide();
+	
+	
+	
+	
+	/*************** VALIDATE FORM BUTTON ****************************/
+	$('#validateForm').click(function(){alert("form validation: "+$('form').validateForm(false));});
+	
+	
+	
+	/*************** VALIDATE 'FAVORITE WORD' BUTTON ***************/
+	$('#validateFavWord').click(function(){alert("favorite validation: "+$('#saying').checkValidation());});
+	
+	
+	
+	
+	
+});
 
 </script>
+
+
+
+<style type="text/css">
+	*{font-family:Tahoma, Geneva, sans-serif;font-size:13px}
+	
+	td{border-bottom:1px solid #ccc; padding:3px; vertical-align:top}
+	
+	.requiredText{color:#F60}
+
+
+#formValidationErrors{
+	
+	padding:10px;
+	background-color:#FCC;
+	color:#8D0100;
+	display:none;
+}
+#formValidationErrors ul{list-style:none;}
+
+
+.requiredTextBold{font-weight:bold; color:#903; font-size:90%;}
+
+</style>
 </head>
 
 <body>
@@ -31,14 +102,10 @@ validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This
 
 <form method="post" action="#" id="myForm">
 	<table>
-		<tr>
-			<td><label for="uofmID">U of M ID Number:</label></td>
-			<td><input name="uofmID" id="uofmID" type="text" class="required dataType_umIDNum"   /></td>
-			<td></td>
-		</tr>
         <tr>
-			<td><label for="saying">Favorite Saying:</label></td>
-			<td><input name="saying" id="saying" type="text"  class="required dataType_minLength_5 dataType_maxLength_8"  /></td>
+			<td><label for="saying">Favorite Word <br />
+		    (between 10 and 20 characters:</label></td>
+			<td><input name="saying" id="saying" type="text"  class="required dataType_minLength_10 dataType_maxLength_20"  /></td>
 			<td></td>
 		</tr>
 		<tr>
@@ -88,27 +155,39 @@ validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct,"message":"This
 		</tr>
 		<tr>
 			<td><label for="kim">Enter Kim:</label></td>
-			<td><input name="kim" id="kim" type="text"    class="required dataType_mustBeKim" /></td>
+			<td><input name="kim" id="kim" type="text"    class="required dataType_mustBeKim validateEvent_keyup" /></td>
 			<td></td>
 		</tr>
+		
+   
+        
+        
+        
 		<tr>
-			<td><label for="randomThoughts">Random Thoughts:</label></td>
-			<td><textarea name="randomThoughts" id="randomThoughts"></textarea></td>
-			<td></td>
-		</tr>
-		<tr>
-			<td><label for="usage">Have You Read The Usage Agreement:</label></td>
+			<td><label for="usage">Do you agree:</label></td>
 		  <td><input type="checkbox" name="usage" id="usage"  class="required" value="yes" />		    Yes</td>
 			<td></td>
 		</tr>
 		<tr>
+		  <td><label for="other">Other info:</label></td>
+		  <td><input type="text" id="other" name="other" /></td>
+		  <td></td>
+	  </tr>
+		<tr>
 			<td colspan="3">
-				<input type="hidden" name="saveOrSubmit" id="saveOrSubmit" value="" />
+			
 			
 			
 				<input type="submit" name="submit" value="Submit Form"  /> 
 			 <input type="reset" name="Reset" id="button" value="Reset" /></td>
-	</table>
+	    <tr>
+	      <td colspan="3">&nbsp;</td>
+        <tr>
+          <td colspan="3"><input type="button" id="addValidation" value="Add Validation to 'other'" />
+          <input type="button" id="removeValidation" value="Remove Validation to 'other'" /></td>
+        <tr>
+          <td colspan="3"> <input type="button" id="validateFavWord" value="Validate 'favorite word'" />  <input type="button" id="validateForm" value="Validate form" /></td>
+    </table>
 
 </form>
 </body>
