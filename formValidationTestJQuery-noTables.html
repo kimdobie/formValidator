@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Untitled Document</title>
+<!--<script type="text/javascript" src="formValidation.js"></script>
+<script type="text/javascript" src="customValidationFormat.js"></script>-->
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.formValidation.js"></script>
+<script type="text/javascript" src="jquery.customValidationFormat.js"></script>
+<script type="text/javascript">
+
+
+//////////////////////// CUSTOM DATA TYPES /////////////////////////////////////////////
+function mustBeKimFunct(field){
+	var result=false;
+	
+	if($(field).val()=="Kim") 	result=true;
+	return {"result":result, "message":"This field must be set to 'Kim'"};
+}
+
+
+
+
+
+
+//Functions entered in the validationDataTypesArray will be picked up by the formValidation object
+var validationDataTypesArray=new Array();
+validationDataTypesArray["mustBeKim"]={"function":mustBeKimFunct};
+
+
+
+////////////////////// ADD/REMOVE VALIDATION //////////////////////////////////////////
+
+//other
+$(document).ready(function(){
+						   
+	/*************** ADD / REMOVE VALIDATION BUTTONS ***************/
+	$('#removeValidation').click(function(){
+		$('#other').removeValidation();
+		$('#removeValidation').hide();
+		$('#addValidation').show();
+	});
+	
+	$('#addValidation').click(function(){
+		$('#other').addValidation();							   
+									   
+		$('#removeValidation').show();
+		$('#addValidation').hide();	
+	});
+	
+	$('#removeValidation').hide();
+	
+	
+	
+	
+	/*************** VALIDATE FORM BUTTON ****************************/
+	$('#validateForm').click(function(){alert("form validation: "+$('form').validateForm(false));});
+	
+	
+	
+	/*************** VALIDATE 'FAVORITE WORD' BUTTON ***************/
+	$('#validateFavWord').click(function(){alert("favorite validation: "+$('#saying').checkValidation());});
+	
+	
+	
+	
+	
+});
+
+</script>
+
+
+
+<style type="text/css">
+	*{font-family:Tahoma, Geneva, sans-serif;font-size:13px}
+	
+	td{border-bottom:1px solid #ccc; padding:3px; vertical-align:top}
+	
+	.requiredText{color:#F60}
+
+
+#formValidationErrors{
+	
+	padding:10px;
+	background-color:#FCC;
+	color:#8D0100;
+	display:none;
+}
+#formValidationErrors ul{list-style:none;}
+
+
+.requiredTextBold{font-weight:bold; color:#903; font-size:90%;}
+
+
+label, legend{font-weight:bold; display:block; font-size:90%}
+fieldset label{display:inline; font-weight:normal; font-size:100%}
+fieldset{padding-left:0; border:0; margin-left:-3px}
+
+</style>
+</head>
+
+<body>
+
+<div id="formValidationErrors"></div>
+
+<form method="post" action="#" id="myForm">
+	
+        <p>
+			<label for="saying">Favorite Word <br />
+		    (between 10 and 20 characters:</label>
+			<input name="saying" id="saying" type="text"  class="required dataType_minLength_10 dataType_maxLength_20"  />
+			
+		</p>
+		<p>
+			<label for="date">Today's Date:</label>
+			<input name="date" id="date" type="text"  class="format dataType_date4Year"  />
+			
+		</p>
+		<p>
+			<label for="phone">Phone Number:</label>
+			<input name="phone" id="phone" type="text"  class="required dataType_phone"   />
+			
+		</p>
+		<p>
+			<label for="pets">Number of Pets You Have:</label>
+			<input name="pets" id="pets" type="text"  class="required dataType_numerical"   />
+			
+		</p>
+		<p>
+			<label for="email">Email:</label>
+			<input name="email" id="email" type="text"  class="required dataType_email"  />
+			
+		</p>
+		<p>
+			<label for="paycheck">Weekly Paycheck Amount:</label>
+			<input name="paycheck" id="paycheck" type="text"  class="required dataType_currency"  />
+			
+		</p>
+		<p>
+			<label for="color">Favorite Color:</label>
+			
+				<select name="color" id="color"  class="required">
+					<option value="">Select a Color</option>
+					<option value="red">Red</option>
+					<option value="orange">Orange</option>
+					<option value="yellow">Yellow</option>
+					<option value="green">Green</option>
+					<option value="blue">Blue</option>
+					<option value="violet">Violet</option>
+				</select>
+			
+			
+		</p>
+		<p><fieldset>
+			<legend>Gender:</legend>
+			<input type="radio" name="gender" id="female"  class="required" value="female" /> <label for="female">Female</label> | <input type="radio" name="gender" id="male"  class="required" value="male" /><label for="male"> Male</label>
+            </fieldset>
+			
+		</p>
+		<p>
+			<label for="kim">Enter Kim:</label>
+			<input name="kim" id="kim" type="text"    class="required dataType_mustBeKim validateEvent_keyup" />
+			
+		</p>
+		
+   
+        
+        
+        
+		<p>
+			<label for="usage">Do you agree:</label>
+		  <input type="checkbox" name="usage" id="usage"  class="required" value="yes" />		    Yes
+			
+		</p>
+		<p>
+		  <label for="other">Other info:</label>
+		  <input type="text" id="other" name="other" />
+		  
+	  </p>
+		<p>
+			
+			
+			
+			
+				<input type="submit" name="submit" value="Submit Form"  /> 
+			 <input type="reset" name="Reset" id="button" value="Reset" />
+	    </p><p>&nbsp;
+	      
+        </p><p>
+          <input type="button" id="addValidation" value="Add Validation to 'other'" />
+          <input type="button" id="removeValidation" value="Remove Validation to 'other'" />
+        </p><p>
+           <input type="button" id="validateFavWord" value="Validate 'favorite word'" />  <input type="button" id="validateForm" value="Validate form" />
+    </p>
+
+</form>
+</body>
+</html>

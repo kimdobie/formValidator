@@ -6,7 +6,7 @@
 /////////////////////////////////// INFO ////////////////////////////////////////////////////
 //This library was created by Kim Doberstein
 //
-// Version 2.0  - NOTE this version may not work with pages set up using prevous versions of this library
+// Version 2.0.1  - NOTE this version may not work with pages set up using prevous versions of this library
 // Date: 02/12/2010
 //
 // Basic framework for form and form field validation
@@ -33,6 +33,13 @@
 //
 //  <input name="text1" type="text" class="required"  />
 //
+// In addition, you can mark a field as "formatted".  This means that if a person enters anything
+// into the field, it must be formatted in particular way (phone,email, date etc). AKA it is requried
+// only if the user enters a value. Just add the class of "format"
+//
+//  <input name="text1" type="text" class="format dataType_phone"  />
+
+
 // Note: each radio button in a radio-button group will need have the "required" class
 
 // By default, the FormValidation object will check to see that the form element has a non-empty value.

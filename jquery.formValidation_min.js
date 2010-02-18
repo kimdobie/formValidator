@@ -1,4 +1,4 @@
-// Version 2.0 
+// Version 2.0.1
 var validate=new FormValidation(true);$(document).ready(function(){validate.init()});$.fn.setFormValidation=function(){$(this).each(function(){validate.setEntireForm(this)});return this};$.fn.addValidation=function(){$(this).each(function(){validate.addValidation(this)});return this};$.fn.removeValidation=function(){$(this).each(function(){validate.removeValidation(this)});return this};$.fn.checkValidation=function(){var g=false;$(this).each(function(){g=validate.checkValidation(this)});return g};
 $.fn.validateForm=function(g){var h=false;$(this).each(function(){h=validate.validateForm(this,g)});return h};
 function FormValidation(g,h){if(h==undefined||h=="")h=true;if(typeof g=="boolean"){h=g;g=""}var e=[];setInternalValidationTypes=function(){e.nonEmpty={"function":nonEmpty};e.umIDNum={"function":UMIDNum};e.date4Year={"function":date4Year};e.phone={"function":phone};e.numerical={"function":numerical};e.email={"function":email};e.currency={"function":currency};e.gpa={"function":checkGPA};e.fourDigitYear={"function":fourDigitYear};e.minLength={"function":minLength};e.maxLength={"function":maxLength}};
