@@ -38,28 +38,28 @@ var formValidationErrorsId="formValidationErrors"; //ID of div that will hold th
  
 function getLabelObj(formElement){
  
-// All else fails - get the label tag associated with the element
-var jQuerylabel=jQuery("label[for='"+jQuery(formElement).attr('id')+"']");
- 
- 
-// Because visually, the label tag for a radio button is not what people consider as the "label"
-if(jQuery(formElement).attr('type')=="radio"||jQuerylabel.length==0){
-// Assume the first table cell in this row is the label
-jQuerylabel=jQuery(formElement).parents('tr:first').children('td:first');
- 
- 
-//If the radios are not in a table, get the legend for the corresponding fieldset
-if(jQuerylabel.length==0) jQuerylabel=jQuery(formElement).parents('fieldset:first').children('legend:first');
- 
-}
- 
- 
-//Check to see if there is a custom label defined for this form element
-var customLabel=extractFromClassNameHelper(jQuery(formElement).attr('class'), customLabelClassStarter);
-if(customLabel!=""&&customLabel!=undefined) jQuerylabel=jQuery('#'+customLabel);
- 
- 
-return jQuerylabel;
+	// All else fails - get the label tag associated with the element
+	var jQuerylabel=jQuery("label[for='"+jQuery(formElement).attr('id')+"']");
+	 
+	 
+	// Because visually, the label tag for a radio button is not what people consider as the "label"
+	if(jQuery(formElement).attr('type')=="radio"||jQuerylabel.length==0){
+	// Assume the first table cell in this row is the label
+	jQuerylabel=jQuery(formElement).parents('tr:first').children('td:first');
+	 
+	 
+	//If the radios are not in a table, get the legend for the corresponding fieldset
+	if(jQuerylabel.length==0) jQuerylabel=jQuery(formElement).parents('fieldset:first').children('legend:first');
+	 
+	}
+	 
+	 
+	//Check to see if there is a custom label defined for this form element
+	var customLabel=extractFromClassNameHelper(jQuery(formElement).attr('class'), customLabelClassStarter);
+	if(customLabel!=""&&customLabel!=undefined) jQuerylabel=jQuery('#'+customLabel);
+	 
+	 
+	return jQuerylabel;
  
 }
  
@@ -71,22 +71,22 @@ return jQuerylabel;
  
  
 function getMessageObj(formElement){
- 
-//first assume it is the last table cell in the form element's table row
-var jQuerymessage=jQuery(formElement).parents('tr:first').children('td:last');
- 
- 
-// if not in a row - find the parent tag and look for a special message container tag
-if(jQuerymessage.length==0) jQuerymessage=jQuery(formElement).parents(formElementParentTag+':first').find('.'+messageContainerClass+':first');
- 
- 
-//Check to see if there is a custom label defined for this form element
-var customMessage=extractFromClassNameHelper(jQuery(formElement).attr('class'), customMessageClassStarter);
-if(customMessage!=""&&customMessage!=undefined) jQuerymessage=jQuery('#'+customMessage);
- 
- 
- 
-return jQuerymessage;
+	 
+	//first assume it is the last table cell in the form element's table row
+	var jQuerymessage=jQuery(formElement).parents('tr:first').children('td:last');
+	 
+	 
+	// if not in a row - find the parent tag and look for a special message container tag
+	if(jQuerymessage.length==0) jQuerymessage=jQuery(formElement).parents(formElementParentTag+':first').find('.'+messageContainerClass+':first');
+	 
+	 
+	//Check to see if there is a custom label defined for this form element
+	var customMessage=extractFromClassNameHelper(jQuery(formElement).attr('class'), customMessageClassStarter);
+	if(customMessage!=""&&customMessage!=undefined) jQuerymessage=jQuery('#'+customMessage);
+	 
+	 
+	 
+	return jQuerymessage;
  
  
  
@@ -103,19 +103,22 @@ return jQuerymessage;
 function formValidationRequiredElementInit(formElement){
  
  
- 
-//Find the label
-var jQuerylabel=getLabelObj(formElement);
-//Add a "*"
-if(jQuerylabel.find('span.'+labelClass).length==0) jQuerylabel.prepend("<span class='"+labelClass+"'>* </span>");
+ 	// Add ARIA required
+	jQuery(formElement).attr('aria-required','true');
  
  
-// if not in a table, set up a span that will hold the message. This is used by the getMessageObj function
-if(jQuery(formElement).parents('tr:first').length==0){
-jQuery(formElement).parents(formElementParentTag+':first').append('<'+messageContainerTag+' class="'+messageContainerClass+'"></'+messageContainerTag+'>');
-}
- 
- 
+	//Find the label
+	var jQuerylabel=getLabelObj(formElement);
+	//Add a "*"
+	if(jQuerylabel.find('span.'+labelClass).length==0) jQuerylabel.prepend("<span class='"+labelClass+"'>* </span>");
+	 
+	 
+	// if not in a table, set up a span that will hold the message. This is used by the getMessageObj function
+	if(jQuery(formElement).parents('tr:first').length==0){
+		jQuery(formElement).parents(formElementParentTag+':first').append('<'+messageContainerTag+' class="'+messageContainerClass+'"></'+messageContainerTag+'>');
+	}
+	 
+ 	
  
  
 }
@@ -123,14 +126,20 @@ jQuery(formElement).parents(formElementParentTag+':first').append('<'+messageCon
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // This function is called when a validation is removed from a form element
-// By default it removes the message and "*" in teh label
+// By default it removes the message and "*" in the label
  
 function formValidationRemoveRequiredElement(formElement){
-getLabelObj(formElement).find('span.'+labelClass).remove();
- 
-getMessageObj(formElement).find('span.'+messageClass).remove();
- 
-getLabelObj(formElement).removeClass(failedLabelClass);
+	
+	//Remove ARIA 
+	jQuery(formElement).removeAttr('aria-required');
+	
+	
+	//Remove * and message
+	getLabelObj(formElement).find('span.'+labelClass).remove();
+	 
+	getMessageObj(formElement).find('span.'+messageClass).remove();
+	 
+	getLabelObj(formElement).removeClass(failedLabelClass);
  
 }
  
@@ -147,22 +156,25 @@ getLabelObj(formElement).removeClass(failedLabelClass);
  
  
 function fieldValidationFail(formElement,messages,dataTypes,result){
+	
+	//Add ARIA
+	jQuery(formElement).attr('aria-invalid','true');
  
-// get message object
-var jQuerymessage=getMessageObj(formElement);
- 
-//build the text of the actual message
-var messageText="* ";
-for(var i=0;i<messages.length;i++){
-messageText+=messages[i]+" *";
- 
-}
- 
-//If it isn't already showing, display the message
-if(jQuerymessage.find('span.'+messageClass).length==0||jQuerymessage.find('span.'+messageClass).text()!=messageText){
-jQuerymessage.html("<span class='"+messageClass+"' style='display:none'>"+messageText+"");
-jQuerymessage.find('span.'+messageClass).fadeIn('slow');
-}
+	// get message object
+	var jQuerymessage=getMessageObj(formElement);
+	 
+	//build the text of the actual message
+	var messageText="* ";
+	for(var i=0;i<messages.length;i++){
+		messageText+=messages[i]+" *";
+	 
+	}
+	 
+	//If it isn't already showing, display the message
+	if(jQuerymessage.find('span.'+messageClass).length==0||jQuerymessage.find('span.'+messageClass).text()!=messageText){
+		jQuerymessage.html("<span class='"+messageClass+"' style='display:none' role='alert'>"+messageText+"");
+		jQuerymessage.find('span.'+messageClass).fadeIn('slow');
+	}
  
  
  
@@ -183,14 +195,14 @@ jQuerymessage.find('span.'+messageClass).fadeIn('slow');
  
 function fieldValidationPass(formElement,messages,dataTypes,result){
  
-//Get message object
-var jQuerymessage=getMessageObj(formElement);
- 
-//Remove message
-jQuerymessage.find('span.'+messageClass).fadeOut('slow',function(){jQuerymessage.html("");});
- 
-//Removes class that is applied to the label when a user trys to submit the form
-getLabelObj(formElement).removeClass(failedLabelClass);
+	//Get message object
+	var jQuerymessage=getMessageObj(formElement);
+	 
+	//Remove message
+	jQuerymessage.find('span.'+messageClass).fadeOut('slow',function(){jQuerymessage.html("");});
+	 
+	//Removes class that is applied to the label when a user trys to submit the form
+	getLabelObj(formElement).removeClass(failedLabelClass);
  
  
 }
@@ -217,69 +229,72 @@ function formValidationFail(formPointer,failedFieldArray){
  
  
  
-//Add a failedlabel and failedMessgeClass to every failed label and message in the form
-for(element in failedFieldArray){
+	//Add a failedlabel and failedMessgeClass to every failed label and message in the form
+	for(element in failedFieldArray){
+	 
+		getLabelObj(jQuery(failedFieldArray[element]["element"])).addClass(failedLabelClass);
+		getMessageObj(jQuery(failedFieldArray[element]["element"])).find('span.'+messageClass).addClass(failedMessageClass);
  
-getLabelObj(jQuery(failedFieldArray[element]["element"])).addClass(failedLabelClass);
-getMessageObj(jQuery(failedFieldArray[element]["element"])).find('span.'+messageClass).addClass(failedMessageClass);
- 
-}
- 
- 
+	}
  
  
- 
-/// What to do if there is a div with formValidationErrors id
-if(jQuery('#'+formValidationErrorsId).length==1){
- 
-jQuery('#formValidationErrors').html("").css('display','none');// hide if already showing
- 
-//Add a named anchor if it doesn't exit.
-if(jQuery('#formValidationErrorsAnchor').length==0){jQuery('#'+formValidationErrorsId).append('<a name="formValidationErrorsAnchor" id="formValidationErrorsAnchor"></a>');}
- 
- 
-//Start of message
-var message="<p><strong>The form is not complete, please fill out all required fields before submitting:</strong></p>";
-message +="<ul>";
- 
-// Get the label and message for each element and add to message string
-for(element in failedFieldArray){
- 
-var jQuerylabel=getLabelObj(jQuery(failedFieldArray[element]["element"]));
- 
-for(var i=0; i< failedFieldArray[element]['messages'].length; i++){
-message+="<li>"+jQuerylabel.text()+" - "+failedFieldArray[element]['messages'][i]+"</li>";
-}
- 
- 
-}
- 
-message+="</ul>"; //end message string
- 
- 
-//Put messages in the div and fade in
-jQuery('#'+formValidationErrorsId).append(message).fadeIn('slow');
- 
-//Moe to named anchor so user can see the errors
-window.location="#formValidationErrorsAnchor";
-return;
-}
- 
- 
- 
-//There wasn't a div for errors to go - put errors in a javascript alert window
-var message="The form is not complete, please fill out all required fields before submitting:"
-for(element in failedFieldArray){
- 
-var jQuerylabel=getLabelObj(jQuery(failedFieldArray[element]["element"]));
- 
-for(var i=0; i< failedFieldArray[element]['messages'].length; i++){
-message+="\n\n "+jQuerylabel.text()+" "+failedFieldArray[element]['messages'][i];
- 
-}
- 
-}
-alert(message);
+	 
+	 
+	 
+	/// What to do if there is a div with formValidationErrors id
+	if(jQuery('#'+formValidationErrorsId).length==1){
+		 
+		jQuery('#'+formValidationErrorsId).html("").css('display','none');// hide if already showing
+		 
+		//Add a named anchor if it doesn't exit.
+		if(jQuery('#formValidationErrorsAnchor').length==0){jQuery('#'+formValidationErrorsId).append('<a name="formValidationErrorsAnchor" id="formValidationErrorsAnchor"></a>');}
+		 
+		 
+		//Start of message
+		var message="<p><strong>The form is not complete, please fill out all required fields before submitting:</strong></p>";
+		message +="<ul>";
+		 
+		// Get the label and message for each element and add to message string
+		for(element in failedFieldArray){
+		 
+			var jQuerylabel=getLabelObj(jQuery(failedFieldArray[element]["element"]));
+			 
+			for(var i=0; i< failedFieldArray[element]['messages'].length; i++){
+				message+="<li>"+jQuerylabel.text()+" - "+failedFieldArray[element]['messages'][i]+"</li>";
+			}
+			 
+		 
+		}
+		 
+		message+="</ul>"; //end message string
+		 
+		 
+		//Put messages in the div and fade in
+		jQuery('#'+formValidationErrorsId).append(message).fadeIn('slow');
+		
+		//Add Aria
+		jQuery('#'+formValidationErrorsId).attr('aria-live','rude');
+		 
+		//Move to named anchor so user can see the errors
+		window.location="#formValidationErrorsAnchor";
+		return;
+	}
+	 
+	 
+	 
+		//There wasn't a div for errors to go - put errors in a javascript alert window
+		var message="The form is not complete, please fill out all required fields before submitting:"
+		for(element in failedFieldArray){
+			 
+			var jQuerylabel=getLabelObj(jQuery(failedFieldArray[element]["element"]));
+			 
+			for(var i=0; i< failedFieldArray[element]['messages'].length; i++){
+				message+="\n\n "+jQuerylabel.text()+" "+failedFieldArray[element]['messages'][i];
+			 
+			}
+			 
+		}
+		alert(message);
 }
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -299,12 +314,12 @@ function formValidationPass(formPointer){
  
  
 function extractFromClassNameHelper(classNames, classStarter){
-var classes = classNames.split(' '); // Spit classNamge into separate classes - so each can be evaluated
- 
-for(var i in classes){
-if(classes[i].match(classStarter)) return classes[i].replace(classStarter,''); // There is a match
-}
-return ''; //There wasn't a match
+	var classes = classNames.split(' '); // Spit classNamge into separate classes - so each can be evaluated
+	 
+	for(var i in classes){
+		if(classes[i].match(classStarter)) return classes[i].replace(classStarter,''); // There is a match
+	}
+	return ''; //There wasn't a match
 };
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////
